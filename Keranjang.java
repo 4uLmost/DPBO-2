@@ -1,40 +1,25 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Keranjang {
-    private ArrayList<String> items = new ArrayList<>();
+    private ArrayList<CartItem> items = new ArrayList<>();
 
-    public void tambahItem(String itemBaru) {
-        // Format item: "Brand xJumlah (Keterangan) - RpTotal"
-        // Cek apakah sudah ada item dengan Brand dan Keterangan yang sama
-        String[] partsBaru = itemBaru.split(" x| \\(|\\) - Rp");
-        String brandBaru = partsBaru.length > 0 ? partsBaru[0].trim() : "";
-        String ketBaru = partsBaru.length > 2 ? partsBaru[2].trim() : "";
-
-        for (int i = 0; i < items.size(); i++) {
-            String item = items.get(i);
-            String[] parts = item.split(" x| \\(|\\) - Rp");
-            String brand = parts.length > 0 ? parts[0].trim() : "";
-            String ket = parts.length > 2 ? parts[2].trim() : "";
-            if (brand.equalsIgnoreCase(brandBaru) && ket.equalsIgnoreCase(ketBaru)) {
-                // Sudah ada, tambahkan jumlah dan harga
-                int jumlahLama = Integer.parseInt(parts[1].trim());
-                int jumlahBaru = Integer.parseInt(partsBaru[1].trim());
-                int totalJumlah = jumlahLama + jumlahBaru;
-                int hargaLama = Integer.parseInt(parts[3].trim());
-                int hargaBaru = Integer.parseInt(partsBaru[3].trim());
-                int totalHarga = hargaLama + hargaBaru;
-                String itemBaruGabung = brand + " x" + totalJumlah + " (" + ket + ") - Rp" + totalHarga;
-                items.set(i, itemBaruGabung);
+    public void tambahItem(CartItem newItem) {
+        // Cek apakah item dengan produk yang sama sudah ada di keranjang
+        for (CartItem item : items) {
+            // Kita bandingkan berdasarkan objek produk dan deskripsinya
+            if (item.getProduct() == newItem.getProduct() && item.getDescription().equals(newItem.getDescription())) {
+                item.addQuantity(newItem.getQuantity()); // Jika sudah ada, cukup tambahkan jumlahnya
                 return;
             }
         }
-        // Jika belum ada, tambahkan baru
-        items.add(itemBaru);
+        // Jika belum ada, tambahkan item baru ke keranjang
+        items.add(newItem);
     }
 
-    public void tampilkanKeranjang(ArrayList<String> daftarPembelianGalon, Galon[] galons) {
+    public void tampilkanKeranjang() {
         if (items.isEmpty()) {
-            System.out.println("keranjang kosong");
+            System.out.println("Keranjang kosong");
             return;
         }
         System.out.println("---------------------------------------------------------------");
@@ -42,89 +27,60 @@ public class Keranjang {
         System.out.println("---------------------------------------------------------------");
         int no = 1;
         int totalSemua = 0;
-        for (String item : items) {
-            String[] parts = item.split(" x| \\(|\\) - Rp");
-            String nama = parts.length > 0 ? parts[0] : "";
-            String jumlah = parts.length > 1 ? parts[1] : "";
-            String ket = parts.length > 2 ? parts[2] : "";
-            String harga = parts.length > 3 ? "Rp" + parts[3] : "";
-            int hargaInt = parts.length > 3 ? Integer.parseInt(parts[3]) : 0;
-            totalSemua += hargaInt;
-            System.out.printf("| %-3d | %-12s | %-6s | %-18s | %-12s |\n", no++, nama, jumlah, ket, harga);
+        for (CartItem item : items) {
+            System.out.printf("| %-3d | %-12s | %-6d | %-18s | Rp%-11d |\n", 
+                no++, 
+                item.getBrand(), 
+                item.getQuantity(), 
+                item.getDescription(), 
+                item.getTotalPrice());
+            totalSemua += item.getTotalPrice();
         }
         System.out.println("---------------------------------------------------------------");
-        System.out.printf("%45s : Rp%d\n", "Total Semua", totalSemua);
+        System.out.printf("%56s : Rp%d\n", "Total Semua", totalSemua);
         System.out.println("---------------------------------------------------------------");
-    }
-
-    // Overload agar tetap kompatibel dengan pemanggilan lama
-    public void tampilkanKeranjang() {
-        tampilkanKeranjang(this.items, new Galon[0]);
     }
 
     public void kosongkanKeranjang() {
         items.clear();
     }
 
-    public ArrayList<String> getItems() {
+    public ArrayList<CartItem> getItems() {
         return items;
+    }
+
+    public boolean isEmpty() {
+        return items.isEmpty();
+    }
+    
+    public int getTotalHarga() {
+        int totalSemua = 0;
+        for(CartItem item : items) {
+            totalSemua += item.getTotalPrice();
+        }
+        return totalSemua;
     }
 
     public void hapusItem(int nomor) {
         if (nomor >= 1 && nomor <= items.size()) {
-            items.remove(nomor - 1);
-        } else {
-            System.out.println("Nomor item tidak valid.");
-        }
-    }
-
-    // Tambahkan parameter galons dan refills untuk update stok saat hapus/edit
-    public void hapusItem(int nomor, Galon[] galons, Refill[] refills) {
-        if (nomor >= 1 && nomor <= items.size()) {
-            String item = items.get(nomor - 1);
-            // Format: Brand xJumlah (Keterangan) - RpTotal
-            String[] parts = item.split(" x| \\(|\\) - Rp");
-            String brand = parts.length > 0 ? parts[0].trim() : "";
-            String ket = parts.length > 2 ? parts[2].trim() : "";
-            int jumlah = Integer.parseInt(parts[1].trim());
-            // Kembalikan stok ke galon/refill
-            if (ket.equalsIgnoreCase("Dengan galon baru")) {
-                for (Galon g : galons) {
-                    if (g.getBrand().equalsIgnoreCase(brand)) {
-                        g.reduceStock(-jumlah); // tambah stok
-                        break;
-                    }
-                }
-            } else if (ket.equalsIgnoreCase("Isi ulang")) {
-                for (Refill r : refills) {
-                    if (r.getBrand().equalsIgnoreCase(brand)) {
-                        r.reduceStock(-jumlah); // tambah stok
-                        break;
-                    }
+            CartItem itemDihapus = items.get(nomor - 1);
+            
+            // Kembalikan stok
+            Object product = itemDihapus.getProduct();
+            if (product instanceof Galon) {
+                ((Galon) product).reduceStock(-itemDihapus.getQuantity()); // Menambah stok
+            } else if (product instanceof Refill) {
+                // Untuk refill, kita kembalikan stok ke galon aslinya jika ada
+                Refill refill = (Refill) product;
+                if (refill.getGalon() != null) {
+                    refill.getGalon().reduceStock(-itemDihapus.getQuantity());
+                } else {
+                    // Jika refill mandiri (seperti Air Depot)
+                    refill.reduceStock(-itemDihapus.getQuantity());
                 }
             }
             items.remove(nomor - 1);
-        } else {
-            System.out.println("Nomor item tidak valid.");
-        }
-    }
-
-    public void editItem(int nomor, int jumlahBaru) {
-        if (nomor >= 1 && nomor <= items.size()) {
-            String item = items.get(nomor - 1);
-            // Format: Brand xJumlah (Keterangan) - RpTotal
-            String[] parts = item.split(" x| \\(|\\) - Rp");
-            String brand = parts.length > 0 ? parts[0].trim() : "";
-            String ket = parts.length > 2 ? parts[2].trim() : "";
-            int hargaSatuan = 0;
-            int jumlahLama = Integer.parseInt(parts[1].trim());
-            int hargaLama = Integer.parseInt(parts[3].trim());
-            if (jumlahLama > 0) {
-                hargaSatuan = hargaLama / jumlahLama;
-            }
-            int totalHargaBaru = hargaSatuan * jumlahBaru;
-            String itemBaru = brand + " x" + jumlahBaru + " (" + ket + ") - Rp" + totalHargaBaru;
-            items.set(nomor - 1, itemBaru);
+            System.out.println("Item berhasil dihapus.");
         } else {
             System.out.println("Nomor item tidak valid.");
         }
@@ -133,55 +89,39 @@ public class Keranjang {
     public void editItem(int nomor, int jumlahBaru, Galon[] galons, Refill[] refills) {
         if (nomor >= 1 && nomor <= items.size()) {
             if (jumlahBaru <= 0) {
-                // Pesan sudah ditangani di Main.java, tidak perlu ulang di sini
-                return;
-            }
-            String item = items.get(nomor - 1);
-            // Format: Brand xJumlah (Keterangan) - RpTotal
-            String[] parts = item.split(" x| \\(|\\) - Rp");
-            String brand = parts.length > 0 ? parts[0].trim() : "";
-            String ket = parts.length > 2 ? parts[2].trim() : "";
-            int jumlahLama = Integer.parseInt(parts[1].trim());
-            int hargaLama = Integer.parseInt(parts[3].trim());
-            int hargaSatuan = jumlahLama > 0 ? hargaLama / jumlahLama : 0;
-            int totalHargaBaru = hargaSatuan * jumlahBaru;
-
-            int selisih = jumlahBaru - jumlahLama;
-            boolean stokCukup = true;
-
-            if (ket.equalsIgnoreCase("Dengan galon baru")) {
-                for (Galon g : galons) {
-                    if (g.getBrand().equalsIgnoreCase(brand)) {
-                        if (selisih > 0 && g.getStock() < selisih) {
-                            System.out.println("Stok galon tidak mencukupi. Sisa stok: " + g.getStock());
-                            stokCukup = false;
-                        } else {
-                            g.reduceStock(selisih);
-                        }
-                        break;
-                    }
-                }
-            } else if (ket.equalsIgnoreCase("Isi ulang")) {
-                for (Refill r : refills) {
-                    if (r.getBrand().equalsIgnoreCase(brand)) {
-                        if (selisih > 0 && r.getStock() < selisih) {
-                            System.out.println("Stok refill tidak mencukupi. Sisa stok: " + r.getStock());
-                            stokCukup = false;
-                        } else {
-                            r.reduceStock(selisih);
-                        }
-                        break;
-                    }
-                }
-            }
-
-            if (!stokCukup) {
-                System.out.println("Edit gagal karena stok tidak cukup.");
+                System.out.println("Jumlah harus lebih dari 0.");
                 return;
             }
 
-            String itemBaru = brand + " x" + jumlahBaru + " (" + ket + ") - Rp" + totalHargaBaru;
-            items.set(nomor - 1, itemBaru);
+            CartItem item = items.get(nomor - 1);
+            int jumlahLama = item.getQuantity();
+            int selisih = jumlahBaru - jumlahLama; // selisih > 0 (nambah), selisih < 0 (kurang)
+
+            // Cek stok sebelum mengubah
+            Object product = item.getProduct();
+            if (product instanceof Galon) {
+                if (selisih > 0 && ((Galon) product).getStock() < selisih) {
+                    System.out.println("Stok galon tidak mencukupi. Sisa stok: " + ((Galon) product).getStock());
+                    return;
+                }
+                ((Galon) product).reduceStock(selisih); // Kurangi stok sesuai selisih
+            } else if (product instanceof Refill) {
+                Refill refill = (Refill) product;
+                int stokTersedia = (refill.getGalon() != null) ? refill.getGalon().getStock() : refill.getStock();
+                if (selisih > 0 && stokTersedia < selisih) {
+                     System.out.println("Stok refill tidak mencukupi. Sisa stok: " + stokTersedia);
+                    return;
+                }
+                
+                if (refill.getGalon() != null) {
+                    refill.getGalon().reduceStock(selisih);
+                } else {
+                    refill.reduceStock(selisih);
+                }
+            }
+            
+            item.setQuantity(jumlahBaru);
+            System.out.println("Item berhasil diedit.");
         } else {
             System.out.println("Nomor item tidak valid.");
         }
