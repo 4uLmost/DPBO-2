@@ -26,17 +26,19 @@ public class Main {
             // Tidak perlu aksi, hanya untuk inisialisasi test
         }
 
-        // Data galon & refill
+        // Data galon (stok utama)
         Galon[] galons = {
             new Galon(1, 19.0, "Aqua", 50000, 10),
             new Galon(2, 19.0, "Club", 45000, 0),
             new Galon(3, 19.0, "ron 88", 45000, 11)
         };
+
+        // Data refill, gunakan referensi ke galon yang sama untuk sinkronisasi stok
         Refill[] refills = {
-            new Refill(1, 19.0, "Aqua", 10, 12000),
-            new Refill(2, 19.0, "Club", 7, 10000),
-            new Refill(3, 19.0, "ron 88", 7, 7000),
-            new Refill(4, 19.0, "Air Depot (IsiAir)", 0, 6000)
+            new Refill(1, 19.0, "Aqua", galons[0], 12000),
+            new Refill(2, 19.0, "Club", galons[1], 10000),
+            new Refill(3, 19.0, "ron 88", galons[2], 7000),
+            new Refill(4, 19.0, "Air Depot (IsiAir)", null, 6000) // Tidak ada galon terkait
         };
 
         // Data reward
@@ -274,7 +276,36 @@ public class Main {
                             }
                             switch (choice) {
                                 case 1:
-                                    System.out.println("Admin");
+                                    // Tampilkan submenu admin
+                                    int adminMenu = -1;
+                                    do {
+                                        System.out.println("=== Admin ===");
+                                        System.out.println("1. Kelola Stok");
+                                        System.out.println("2. Kelola Pesanan");
+                                        System.out.println("0. Keluar");
+                                        System.out.print("Pilih menu: ");
+                                        try {
+                                            adminMenu = Integer.parseInt(scanner.nextLine());
+                                        } catch (NumberFormatException e) {
+                                            System.out.println("Pilihan tidak valid.");
+                                            continue;
+                                        }
+                                        switch (adminMenu) {
+                                            case 1:
+                                                System.out.println("Kelola Stok");
+                                                // Tambahkan logika kelola stok di sini jika diperlukan
+                                                break;
+                                            case 2:
+                                                System.out.println("Kelola Pesanan");
+                                                // Tambahkan logika kelola pesanan di sini jika diperlukan
+                                                break;
+                                            case 0:
+                                                System.out.println("Keluar dari menu admin.");
+                                                break;
+                                            default:
+                                                System.out.println("Pilihan tidak valid.");
+                                        }
+                                    } while (adminMenu != 0);
                                     break;
                                 case 2:
                                     System.out.println("Kurir");
@@ -422,7 +453,7 @@ public class Main {
                             break;
                         }
                     }
-                    galonDipilih.reduceStock(jumlahBeli);
+                    galonDipilih.reduceStock(jumlahBeli); // stok galon berkurang
                     String item = galonDipilih.getBrand() + " x" + jumlahBeli + " (Dengan galon baru) - Rp" + (hargaDenganGalon * jumlahBeli);
                     keranjang.tambahItem(item);
                     daftarPembelianGalon.add(item); // Tambahkan ke daftar pembelian
@@ -460,7 +491,13 @@ public class Main {
                             System.out.println("Pilihan tidak valid.");
                             continue;
                         }
-                        if (refillDipilih.getStock() == 0) {
+                        // Sinkronisasi stok: jika ada galon terkait, cek stok galon
+                        if (refillDipilih.getGalon() != null && refillDipilih.getGalon().getStock() == 0) {
+                            System.out.println("Mohon maaf barang yang anda pilih tidak tersedia, Harap pili kembali");
+                            continue;
+                        }
+                        // Jika tidak ada galon terkait, cek stok refill sendiri (untuk Air Depot)
+                        if (refillDipilih.getGalon() == null && refillDipilih.getStock() == 0) {
                             System.out.println("Mohon maaf barang yang anda pilih tidak tersedia, Harap pili kembali");
                             continue;
                         }
@@ -474,15 +511,33 @@ public class Main {
                         System.out.print("Jumlah galon yang ingin di isi ulang: ");
                         jumlahRefill = scanner.nextInt();
                         scanner.nextLine();
-                        if (jumlahRefill > refillDipilih.getStock()) {
-                            System.out.println("Mohon maaf sisa barang yang anda pilih tinggal " + refillDipilih.getStock() + ", Silahkan masukan stok yang tersedia");
-                        } else if (jumlahRefill <= 0) {
-                            System.out.println("Jumlah harus lebih dari 0.");
+                        // Sinkronisasi stok: jika ada galon terkait, cek stok galon
+                        if (refillDipilih.getGalon() != null) {
+                            if (jumlahRefill > refillDipilih.getGalon().getStock()) {
+                                System.out.println("Mohon maaf sisa barang yang anda pilih tinggal " + refillDipilih.getGalon().getStock() + ", Silahkan masukan stok yang tersedia");
+                            } else if (jumlahRefill <= 0) {
+                                System.out.println("Jumlah harus lebih dari 0.");
+                            } else {
+                                break;
+                            }
                         } else {
-                            break;
+                            // Untuk Air Depot (tanpa galon terkait)
+                            if (jumlahRefill > refillDipilih.getStock()) {
+                                System.out.println("Mohon maaf sisa barang yang anda pilih tinggal " + refillDipilih.getStock() + ", Silahkan masukan stok yang tersedia");
+                            } else if (jumlahRefill <= 0) {
+                                System.out.println("Jumlah harus lebih dari 0.");
+                            } else {
+                                break;
+                            }
                         }
                     }
-                    refillDipilih.reduceStock(jumlahRefill);
+                    // Sinkronisasi stok: jika ada galon terkait, kurangi stok galon
+                    if (refillDipilih.getGalon() != null) {
+                        refillDipilih.getGalon().reduceStock(jumlahRefill);
+                    } else {
+                        // Untuk Air Depot (tanpa galon terkait), kurangi stok refill sendiri
+                        refillDipilih.reduceStock(jumlahRefill);
+                    }
                     String item = refillDipilih.getBrand() + " x" + jumlahRefill + " (Isi ulang) - Rp" + (refillDipilih.getRefillPrice() * jumlahRefill);
                     keranjang.tambahItem(item);
                     daftarPembelianGalon.add(item); // Tambahkan ke daftar pembelian
@@ -828,7 +883,36 @@ public class Main {
                                     }
                                     switch (choice) {
                                         case 1:
-                                            System.out.println("Admin");
+                                            // Tampilkan submenu admin
+                                            int adminMenu = -1;
+                                            do {
+                                                System.out.println("=== Admin ===");
+                                                System.out.println("1. Kelola Stok");
+                                                System.out.println("2. Kelola Pesanan");
+                                                System.out.println("0. Keluar");
+                                                System.out.print("Pilih menu: ");
+                                                try {
+                                                    adminMenu = Integer.parseInt(scanner.nextLine());
+                                                } catch (NumberFormatException e) {
+                                                    System.out.println("Pilihan tidak valid.");
+                                                    continue;
+                                                }
+                                                switch (adminMenu) {
+                                                    case 1:
+                                                        System.out.println("Kelola Stok");
+                                                        // Tambahkan logika kelola stok di sini jika diperlukan
+                                                        break;
+                                                    case 2:
+                                                        System.out.println("Kelola Pesanan");
+                                                        // Tambahkan logika kelola pesanan di sini jika diperlukan
+                                                        break;
+                                                    case 0:
+                                                        System.out.println("Keluar dari menu admin.");
+                                                        break;
+                                                    default:
+                                                        System.out.println("Pilihan tidak valid.");
+                                                }
+                                            } while (adminMenu != 0);
                                             break;
                                         case 2:
                                             System.out.println("Kurir");
