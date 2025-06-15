@@ -1,49 +1,39 @@
-public class KelolaStok {
-    private Galon[] galons;
-    private Refill[] refills;
+import java.util.ArrayList;
 
-    public KelolaStok(Galon[] galons, Refill[] refills) {
-        this.galons = galons;
-        this.refills = refills;
+public class KelolaStok {
+    private ArrayList<Product> products;
+
+    // Konstruktor diubah untuk menerima satu ArrayList<Product>
+    public KelolaStok(ArrayList<Product> products) {
+        this.products = products;
     }
 
+    // Menampilkan stok, dipisahkan berdasarkan tipe produk
     public void tampilkanStokGalon() {
         System.out.println("\n=== Stok Galon ===");
-        System.out.printf("| %-3s | %-10s | %-7s | %-18s | %-5s |\n",
-                "ID", "Brand", "Volume", "Harga dengan Galon", "Stok");
-        System.out.println("-------------------------------------------------------------");
-        for (Galon g : galons) {
-            System.out.printf("| %-3d | %-10s | %-7.1f | Rp%-16d | %-5d |\n",
-                    g.getId(), g.getBrand(), g.getVolume(), g.getPrice(), g.getStock());
-        }
-    }
-
-    public void tampilkanStokRefill() {
-        System.out.println("\n=== Stok Refill ===");
-        System.out.printf("| %-3s | %-20s | %-7s | %-12s | %-5s |\n",
-                "ID", "Brand", "Volume", "Harga Refill", "Stok");
-        System.out.println("---------------------------------------------------------------------");
-        for (Refill r : refills) {
-            System.out.printf("| %-3d | %-20s | %-7.1f | Rp%-10d | %-5d |\n",
-                    r.getId(), r.getBrand(), r.getVolume(), r.getRefillPrice(), r.getStock());
-        }
-    }
-
-    public boolean tambahStokGalon(int id, int jumlah) {
-        for (Galon g : galons) {
-            if (g.getId() == id) {
-                g.tambahStock(jumlah);
-                return true;
+        System.out.printf("| %-3s | %-10s | %-18s | %-5s |\n",
+                "ID", "Brand", "Harga dengan Galon", "Stok");
+        System.out.println("-----------------------------------------------------");
+        for (Product p : products) {
+            if (p instanceof Galon) {
+                System.out.printf("| %-3d | %-10s | Rp%-16d | %-5d |\n",
+                        p.getId(), p.getBrand(), p.getPrice(), p.getStock());
             }
         }
-        return false;
+    }
+    
+    // Metode ini sekarang menjadi tidak relevan karena stok refill menyatu dengan galon,
+    // tapi kita biarkan kosong agar tidak error jika dipanggil
+    public void tampilkanStokRefill() {
+        // Tidak perlu lagi karena stok refill tergantung galon utama
+        System.out.println("Info stok refill dapat dilihat pada stok galon.");
     }
 
-    public boolean tambahStokRefill(int id, int jumlah) {
-        // Ubah menjadi mengubah harga refill, bukan stok
-        for (Refill r : refills) {
-            if (r.getId() == id) {
-                r.setRefillPrice(jumlah); // jumlah di sini dianggap sebagai harga baru
+    // Logika diubah untuk mencari dari satu list product
+    public boolean tambahStokGalon(int id, int jumlah) {
+        for (Product p : products) {
+            if (p instanceof Galon && p.getId() == id) {
+                p.reduceStock(-jumlah); // Logika reduceStock(-x) akan menambah stok
                 return true;
             }
         }
@@ -51,37 +41,26 @@ public class KelolaStok {
     }
 
     public boolean kurangiStokGalon(int id, int jumlah) {
-        for (Galon g : galons) {
-            if (g.getId() == id && g.getStock() >= jumlah) {
-                g.reduceStock(jumlah);
+        for (Product p : products) {
+            if (p instanceof Galon && p.getId() == id && p.getStock() >= jumlah) {
+                p.reduceStock(jumlah);
                 return true;
             }
         }
         return false;
     }
 
-    public boolean kurangiStokRefill(int id, int jumlah) {
-        for (Refill r : refills) {
-            if (r.getId() == id && r.getStock() >= jumlah) {
-                r.reduceStock(jumlah);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Tambahkan method untuk mengubah harga galon
     public boolean ubahHargaGalon(int id, int hargaBaru) {
-        for (Galon g : galons) {
-            if (g.getId() == id) {
-                g.setPrice(hargaBaru);
+        for (Product p : products) {
+            if (p instanceof Galon && p.getId() == id) {
+                ((Galon) p).setPrice(hargaBaru); // Perlu cast untuk akses setPrice di Galon
                 return true;
             }
         }
         return false;
     }
-
-    // Tampilkan reward
+    
+    // Metode untuk mengelola Reward (tidak perlu diubah)
     public void tampilkanReward(Reward[] rewards) {
         System.out.println("\n=== Daftar Reward ===");
         System.out.printf("| %-5s | %-20s | %-8s | %-30s |\n", "ID", "Nama", "Poin", "Deskripsi");
@@ -91,7 +70,6 @@ public class KelolaStok {
         }
     }
 
-    // Ubah reward
     public boolean ubahReward(Reward[] rewards, int id, String nama, int poin, String deskripsi) {
         for (Reward r : rewards) {
             if (r.getId() == id) {

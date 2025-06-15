@@ -86,44 +86,29 @@ public class Keranjang {
         }
     }
 
-    public void editItem(int nomor, int jumlahBaru, Galon[] galons, Refill[] refills) {
-        if (nomor >= 1 && nomor <= items.size()) {
-            if (jumlahBaru <= 0) {
-                System.out.println("Jumlah harus lebih dari 0.");
-                return;
-            }
-
-            CartItem item = items.get(nomor - 1);
-            int jumlahLama = item.getQuantity();
-            int selisih = jumlahBaru - jumlahLama; // selisih > 0 (nambah), selisih < 0 (kurang)
-
-            // Cek stok sebelum mengubah
-            Object product = item.getProduct();
-            if (product instanceof Galon) {
-                if (selisih > 0 && ((Galon) product).getStock() < selisih) {
-                    System.out.println("Stok galon tidak mencukupi. Sisa stok: " + ((Galon) product).getStock());
-                    return;
-                }
-                ((Galon) product).reduceStock(selisih); // Kurangi stok sesuai selisih
-            } else if (product instanceof Refill) {
-                Refill refill = (Refill) product;
-                int stokTersedia = (refill.getGalon() != null) ? refill.getGalon().getStock() : refill.getStock();
-                if (selisih > 0 && stokTersedia < selisih) {
-                     System.out.println("Stok refill tidak mencukupi. Sisa stok: " + stokTersedia);
-                    return;
-                }
-                
-                if (refill.getGalon() != null) {
-                    refill.getGalon().reduceStock(selisih);
-                } else {
-                    refill.reduceStock(selisih);
-                }
-            }
-            
-            item.setQuantity(jumlahBaru);
-            System.out.println("Item berhasil diedit.");
-        } else {
-            System.out.println("Nomor item tidak valid.");
+    public void editItem(int nomor, int jumlahBaru) {
+    if (nomor >= 1 && nomor <= items.size()) {
+        if (jumlahBaru <= 0) {
+            System.out.println("Jumlah harus lebih dari 0.");
+            return;
         }
+
+        CartItem item = items.get(nomor - 1);
+        Product product = (Product) item.getProduct();
+        int jumlahLama = item.getQuantity();
+        int selisih = jumlahBaru - jumlahLama;
+
+        if (selisih > 0 && product.getStock() < selisih) {
+            System.out.println("Stok tidak mencukupi. Sisa stok: " + product.getStock());
+            return;
+        }
+        
+        product.reduceStock(selisih);
+        item.setQuantity(jumlahBaru);
+        System.out.println("Item berhasil diedit.");
+
+    } else {
+        System.out.println("Nomor item tidak valid.");
     }
+}
 }
