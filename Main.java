@@ -3,6 +3,9 @@ import java.util.*;
 public class Main {
     private static ArrayList<Register> daftarRegister = new ArrayList<>();
     private static User currentUser = null;
+    // Tambahkan objek admin dan chat channel
+    private static Admin admin = new Admin(1, "Admin", "admin@example.com", "admin123", "Konsultansi");
+    private static ChatChannel chatChannel = null;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -302,6 +305,8 @@ public class Main {
                     } else {
                         currentUser = regFound;
                         System.out.println("Login berhasil. Selamat datang, " + currentUser.getName());
+                        // Inisialisasi chat channel untuk user yang login
+                        chatChannel = new ChatChannel(1, admin, currentUser);
                         break;
                     }
                 }
@@ -346,9 +351,10 @@ public class Main {
             System.out.println("3. Pesanan Saya");
             System.out.println("4. Keranjang");
             System.out.println("5. Chat");
-            System.out.println("6. Notifikasi");
-            System.out.println("7. Logout");
-            System.out.println("8. Keluar");
+            System.out.println("6. Profile"); // Tambahkan menu Profile
+            System.out.println("7. Notifikasi");
+            System.out.println("8. Logout");
+            System.out.println("9. Keluar");
             System.out.print("Pilih menu: ");
             String menuInput = scanner.nextLine();
             int menu;
@@ -564,12 +570,43 @@ public class Main {
                     }
                 }
             } else if (menu == 5) {
-                // Chat
-                System.out.println("Fitur chat belum tersedia.");
+                // Chat interaktif antara user dan admin
+                if (chatChannel == null) {
+                    chatChannel = new ChatChannel(1, admin, currentUser);
+                }
+                // Admin menyapa user jika chat kosong
+                if (chatChannel.isEmpty()) {
+                    chatChannel.sendMessage("Halo " + currentUser.getName() + ", apakah ada yang bisa saya bantu?", admin);
+                }
+                while (true) {
+                    chatChannel.printChatHistory();
+                    System.out.print("\nUser, masukkan pesan ('exit' untuk keluar): ");
+                    String message = scanner.nextLine();
+                    if (message.equalsIgnoreCase("exit")) {
+                        break;
+                    }
+                    chatChannel.sendMessage(message, currentUser);
+                    chatChannel.sendMessage("Baik kak permintaan anda akan kami proses", admin);
+                }
+                System.out.println("Percakapan berakhir.");
             } else if (menu == 6) {
+                // Profile
+                System.out.println("\n=== Informasi Profil ===");
+                System.out.println("ID: " + currentUser.getId());
+                System.out.println("Nama: " + currentUser.getName());
+                System.out.println("Email: " + currentUser.getEmail());
+                System.out.println("Password: " + currentUser.getPassword());
+                if (currentUser instanceof Register) {
+                    Register reg = (Register) currentUser;
+                    System.out.println("Nomor Telepon: " + reg.getPhoneNumber());
+                    System.out.println("Jenis Kelamin: " + reg.getGender());
+                    System.out.println("Tanggal Lahir: " + reg.getBirthday());
+                    System.out.println("Alamat: " + reg.getAddress());
+                }
+            } else if (menu == 7) {
                 // Notifikasi
                 System.out.println("Fitur notifikasi belum tersedia.");
-            } else if (menu == 7) {
+            } else if (menu == 8) {
                 // Logout
                 System.out.println("Anda telah logout.");
                 currentUser = null;
@@ -822,6 +859,8 @@ public class Main {
                             } else {
                                 currentUser = regFound;
                                 System.out.println("Login berhasil. Selamat datang, " + currentUser.getName());
+                                // Inisialisasi chat channel untuk user yang login
+                                chatChannel = new ChatChannel(1, admin, currentUser);
                                 break;
                             }
                         }
@@ -857,7 +896,7 @@ public class Main {
                         System.out.println("Menu tidak tersedia, silahkan pilih sesuai nomor pada menu");
                     }
                 }
-            } else if (menu == 8) {
+            } else if (menu == 9) {
                 System.out.println("Terima kasih telah menggunakan isiAir!");
                 break;
             } else {

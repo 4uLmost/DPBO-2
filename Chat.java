@@ -1,25 +1,13 @@
-public class Chat {
-	private String message;
-	private Profile sender;
-	private ChatChannel channel;
-	
-	public Chat(String message, Profile sender, ChatChannel channel) {
-		super();
-		this.message = message;
-		this.sender = sender;
-		this.channel = channel;
-	}
+class Chat {
+    private String message;
+    private Profile sender;
 
-	public String getMessage() {
-		return message;
-	}
+    public Chat(String message, Profile sender) {
+        this.message = message;
+        this.sender = sender;
+    }
 
-	public Profile getSender() {
-		return sender;
-	}
-	
-	public void printInfo() {
-		System.out.println("From: " + sender.getName());
-		System.out.println("Message:\n" + message);
-	}
+    public void printInfo() {
+        System.out.println(sender.getName() + ": " + message);
+    }
 }
