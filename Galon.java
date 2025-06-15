@@ -50,8 +50,17 @@ public class Galon {
 		}
 	}
 	
+	public void tambahStock(int jumlah) {
+        this.stock += jumlah;
+    }
+	
 	public void printInfo() {
 		 System.out.printf("| %-3d | %-10s | %-6.1fL | Rp%-8d | %-4d |\n",
 	                id, brand, volume, price, stock);
 	}
+	
+	// Tambahkan setter untuk price
+    public void setPrice(int hargaBaru) {
+        this.price = hargaBaru;
+    }
 }

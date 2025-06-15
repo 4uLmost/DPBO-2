@@ -1,30 +1,30 @@
 public class Reward {
 	private int id;
-    private String name;
-    private int pointCost;
-    private String description;
+    private String nama;
+    private int poin;
+    private String deskripsi;
     private User receiver;
 
     public Reward(int id, String name, int pointCost, String description) {
         this.id = id;
-        this.name = name;
-        this.pointCost = pointCost;
-        this.description = description;
+        this.nama = name;
+        this.poin = pointCost;
+        this.deskripsi = description;
         this.receiver = null;
     }
 
     public void redeem(User user) {
-        if (user.getPoints() >= pointCost) {
-            user.decreasePoints(pointCost);
+        if (user.getPoints() >= poin) {
+            user.decreasePoints(poin);
             this.receiver = user;
-            System.out.println("Reward \"" + name + "\" berhasil ditukar!");
+            System.out.println("Reward \"" + nama + "\" berhasil ditukar!");
         } else {
             System.out.println("Poin tidak mencukupi untuk menukar reward.");
         }
     }
 
     public void printInfo() {
-        System.out.println("Reward: " + name + ", Poin: " + pointCost);
+        System.out.println("Reward: " + nama + ", Poin: " + poin);
         if (receiver != null) {
             System.out.println("Sudah ditebus oleh: " + receiver.getName());
         } else {
@@ -32,11 +32,11 @@ public class Reward {
         }
     }
 
-    public String getName() {
-        return this.name;
+    public String getNama() {
+        return nama;
     }
 
-    public int getPointCost() {
-        return this.pointCost;
+    public int getPoin() {
+        return poin;
     }
 }

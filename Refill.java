@@ -45,6 +45,10 @@ public class Refill {
 		return refillPrice;
 	}
 
+	public void setRefillPrice(int hargaBaru) {
+        this.refillPrice = hargaBaru;
+    }
+
 	public Galon getGalon() {
 		return galon;
 	}
