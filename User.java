@@ -72,6 +72,10 @@ public class User extends Profile implements Identity {
         return points;
     }
 
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
     public void decreasePoints(int amount) {
         if (points >= amount) {
             points -= amount;
