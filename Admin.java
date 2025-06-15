@@ -1,5 +1,3 @@
-import java.util.Scanner;
-
 public class Admin extends Profile {
 
 	private String department;

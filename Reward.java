@@ -1,3 +1,4 @@
+// Reward.java - Kode yang Sudah Diperbaiki
 public class Reward {
 	private int id;
     private String nama;
@@ -32,11 +33,33 @@ public class Reward {
         }
     }
 
+    // -- METODE YANG DITAMBAHKAN UNTUK MEMPERBAIKI ERROR --
+
+    public int getId() {
+        return id;
+    }
+
     public String getNama() {
         return nama;
     }
 
+    public void setNama(String nama) {
+        this.nama = nama;
+    }
+
     public int getPoin() {
         return poin;
+    }
+
+    public void setPoin(int poin) {
+        this.poin = poin;
+    }
+
+    public String getDeskripsi() {
+        return deskripsi;
+    }
+
+    public void setDeskripsi(String deskripsi) {
+        this.deskripsi = deskripsi;
     }
 }
