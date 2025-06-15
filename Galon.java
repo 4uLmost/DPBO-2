@@ -1,4 +1,4 @@
-public class Galon {
+public class Galon implements Product{
 	private int id;
 	private double volume;
 	private String brand;

@@ -367,22 +367,26 @@ private static void showLoginRegisterMenu(Scanner scanner, ArrayList<Register> d
                 // Tidak perlu aksi, hanya untuk inisialisasi test
             }
 
-            // Data galon & refill
-            Galon[] galons = {
-                new Galon(1, 19.0, "Aqua", 50000, 10),
-                new Galon(2, 19.0, "Club", 45000, 0),
-                new Galon(3, 19.0, "ron 88", 45000, 11)
-            };
+            // GUNAKAN ArrayList TUNGGAL INI
+            ArrayList<Product> allProducts = new ArrayList<>();
 
-            Refill[] refills = {
-                new Refill(1, 19.0, "Aqua", galons[0], 12000),
-                new Refill(2, 19.0, "Club", galons[1], 10000),
-                new Refill(3, 19.0, "ron 88", galons[2], 7000),
-                new Refill(4, 19.0, "Air Depot (IsiAir)", null, 6000) // Tidak ada galon terkait
-            };
+            // Tambahkan Galon
+            Galon aquaGalon = new Galon(1, 19.0, "Aqua", 50000, 10);
+            Galon clubGalon = new Galon(2, 19.0, "Club", 45000, 0);
+            Galon ron88Galon = new Galon(3, 19.0, "ron 88", 45000, 11);
+
+            allProducts.add(aquaGalon);
+            allProducts.add(clubGalon);
+            allProducts.add(ron88Galon);
+
+            // Tambahkan Refill
+            allProducts.add(new Refill(1, 19.0, "Aqua", aquaGalon, 12000));
+            allProducts.add(new Refill(2, 19.0, "Club", clubGalon, 10000));
+            allProducts.add(new Refill(3, 19.0, "ron 88", ron88Galon, 7000));
+            allProducts.add(new Refill(4, 19.0, "Air Depot (IsiAir)", null, 6000));
 
             // Tambahkan objek kelola stok
-            KelolaStok kelolaStok = new KelolaStok(galons, refills);
+            KelolaStok kelolaStok = new KelolaStok(allProducts);
 
             // Data reward
             Reward[] rewards = {
@@ -439,10 +443,13 @@ private static void showLoginRegisterMenu(Scanner scanner, ArrayList<Register> d
                         System.out.printf("| %-3s | %-10s | %-7s | %-18s | %-5s |\n",
                                 "ID", "Brand", "Volume", "Harga dengan Galon", "Stok");
                         System.out.println("-------------------------------------------------------------");
-                        for (Galon g : galons) {
-                            int hargaDenganGalon = g.getPrice();
-                            System.out.printf("| %-3d | %-10s | %-7.1f | Rp%-16d | %-5d |\n",
-                                    g.getId(), g.getBrand(), g.getVolume(), hargaDenganGalon, g.getStock());
+                        // Loop melalui SEMUA produk, tapi hanya tampilkan GALON
+                        for (Product product : allProducts) {
+                            if (product instanceof Galon) {
+                                Galon g = (Galon) product; // Cast ke Galon untuk akses metode spesifik
+                                System.out.printf("| %-3d | %-10s | %-7.1f | Rp%-16d | %-5d |\n",
+                                        g.getId(), g.getBrand(), g.getVolume(), g.getPrice(), g.getStock());
+                            }
                         }
                         // Hapus opsi 2, hanya tampilkan 0
                         System.out.println("0. Kembali ke menu utama");
@@ -453,27 +460,39 @@ private static void showLoginRegisterMenu(Scanner scanner, ArrayList<Register> d
                             pilihan = scanner.nextInt();
                             scanner.nextLine();
                             if (pilihan == 0) {
-                                break;
+                                break; // Keluar dari loop pemilihan jika input 0
                             }
-                            galonDipilih = null;
-                            for (Galon g : galons) {
-                                if (g.getId() == pilihan) {
-                                    galonDipilih = g;
+
+                            Product produkDitemukan = null;
+                            // Cari di dalam allProducts
+                            for (Product p : allProducts) {
+                                // Syaratnya: ID harus cocok DAN tipenya harus Galon
+                                if (p.getId() == pilihan && p instanceof Galon) {
+                                    produkDitemukan = p;
                                     break;
                                 }
                             }
-                            if (galonDipilih == null) {
+
+                            // Jika setelah dicari tidak ketemu atau tipenya salah
+                            if (produkDitemukan == null) {
                                 System.out.println("Pilihan tidak valid.");
-                                continue;
+                                continue; // Ulangi pertanyaan
                             }
+
+                            // Jika produk ditemukan, cast dan cek stok
+                            galonDipilih = (Galon) produkDitemukan;
                             if (galonDipilih.getStock() == 0) {
-                                System.out.println("Mohon maaf barang yang anda pilih tidak tersedia, Harap pili kembali");
-                                continue;
+                                System.out.println("Mohon maaf barang yang anda pilih tidak tersedia, Harap pilih kembali");
+                                galonDipilih = null; // Reset pilihan
+                                continue; // Ulangi pertanyaan
                             }
+                            
+                            // Jika semua valid, keluar dari loop pemilihan
                             break;
                         }
+
                         if (pilihan == 0) {
-                            break;
+                            break; // Kembali ke menu utama
                         }
                         int hargaDenganGalon = galonDipilih.getPrice();
                         int jumlahBeli;
@@ -501,8 +520,14 @@ private static void showLoginRegisterMenu(Scanner scanner, ArrayList<Register> d
                         System.out.printf("| %-3s | %-20s | %-7s | %-12s | %-5s |\n",
                                 "ID", "Brand", "Volume", "Harga Refill", "Stok");
                         System.out.println("---------------------------------------------------------------------");
-                        for (Refill r : refills) {
-                            r.printRefillInfo();
+                        // Loop melalui SEMUA produk, tapi hanya tampilkan REFILL
+                        for (Product product : allProducts) {
+                            if (product instanceof Refill) {
+                                Refill r = (Refill) product; // Cast ke Refill
+                                // Karena method printRefillInfo() spesifik, kita cetak manual di sini
+                                System.out.printf("| %-3d | %-20s | %-7.1f | Rp%-10d | %-5d |\n",
+                                    r.getId(), r.getBrand(), r.getVolume(), r.getPrice(), r.getStock());
+                            }
                         }
                         // Langsung input ID galon
                         System.out.println("0. Kembali ke menu utama");
@@ -513,33 +538,39 @@ private static void showLoginRegisterMenu(Scanner scanner, ArrayList<Register> d
                             pilihanGalon = scanner.nextInt();
                             scanner.nextLine();
                             if (pilihanGalon == 0) {
-                                break;
+                                break; // Keluar dari loop pemilihan jika input 0
                             }
-                            refillDipilih = null;
-                            for (Refill r : refills) {
-                                if (r.getId() == pilihanGalon) {
-                                    refillDipilih = r;
+
+                            Product produkDitemukan = null;
+                            // Cari di dalam allProducts
+                            for (Product p : allProducts) {
+                                // Syaratnya: ID harus cocok DAN tipenya harus Refill
+                                if (p.getId() == pilihanGalon && p instanceof Refill) {
+                                    produkDitemukan = p;
                                     break;
                                 }
                             }
-                            if (refillDipilih == null) {
+
+                            // Jika setelah dicari tidak ketemu atau tipenya salah
+                            if (produkDitemukan == null) {
                                 System.out.println("Pilihan tidak valid.");
-                                continue;
+                                continue; // Ulangi pertanyaan
                             }
-                            // Sinkronisasi stok: jika ada galon terkait, cek stok galon
-                            if (refillDipilih.getGalon() != null && refillDipilih.getGalon().getStock() == 0) {
-                                System.out.println("Mohon maaf barang yang anda pilih tidak tersedia, Harap pili kembali");
-                                continue;
+                            
+                            // Jika produk ditemukan, cast dan cek stok
+                            refillDipilih = (Refill) produkDitemukan;
+                            if (refillDipilih.getStock() == 0) {
+                                System.out.println("Mohon maaf barang yang anda pilih tidak tersedia, Harap pilih kembali");
+                                refillDipilih = null; // Reset pilihan
+                                continue; // Ulangi pertanyaan
                             }
-                            // Jika tidak ada galon terkait, cek stok refill sendiri (untuk Air Depot)
-                            if (refillDipilih.getGalon() == null && refillDipilih.getStock() == 0) {
-                                System.out.println("Mohon maaf barang yang anda pilih tidak tersedia, Harap pili kembali");
-                                continue;
-                            }
+
+                            // Jika semua valid, keluar dari loop pemilihan
                             break;
                         }
+
                         if (pilihanGalon == 0) {
-                            break;
+                            break; // Kembali ke menu utama
                         }
                         int jumlahRefill;
                         while (true) {
@@ -573,7 +604,7 @@ private static void showLoginRegisterMenu(Scanner scanner, ArrayList<Register> d
                             // Untuk Air Depot (tanpa galon terkait), kurangi stok refill sendiri
                             refillDipilih.reduceStock(jumlahRefill);
                         }
-                        CartItem itemBaru = new CartItem(refillDipilih, jumlahRefill, refillDipilih.getRefillPrice(), "Isi ulang");
+                        CartItem itemBaru = new CartItem(refillDipilih, jumlahRefill, refillDipilih.getPrice(), "Isi ulang");
                         keranjang.tambahItem(itemBaru);
                         System.out.println("Berhasil menambahkan ke keranjang.");
                     }
@@ -687,7 +718,7 @@ private static void showLoginRegisterMenu(Scanner scanner, ArrayList<Register> d
                             if (jumlahBaru <= 0) {
                                 System.out.println("Jumlah harus lebih dari 0.");
                             } else {
-                                keranjang.editItem(nomorEdit, jumlahBaru, galons, refills);
+                                keranjang.editItem(nomorEdit, jumlahBaru);
                                 System.out.println("Item berhasil diedit.");
                             }
                         } else {

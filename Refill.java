@@ -1,4 +1,4 @@
-public class Refill {
+public class Refill implements Product{
 	private int id;
 	private double volume;
 	private String brand;
@@ -41,13 +41,14 @@ public class Refill {
 		}
 	}
 
-	public int getRefillPrice() {
+	@Override
+	public int getPrice() {
 		return refillPrice;
 	}
 
-	public void setRefillPrice(int hargaBaru) {
-        this.refillPrice = hargaBaru;
-    }
+	public void setPrice(int hargaBaru) {
+		this.refillPrice = hargaBaru;
+	}
 
 	public Galon getGalon() {
 		return galon;
