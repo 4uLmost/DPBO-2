@@ -8,6 +8,64 @@ public class Main {
     private static Admin admin = new Admin(1, "Admin", "admin@example.com", "admin123", "Konsultansi");
     private static ChatChannel chatChannel = null;
 
+public static void showCourierMenu(Scanner scanner, ArrayList<Pesanan> daftarPesanan) {
+    int courierChoice = -1;
+    while (courierChoice != 0) {
+        System.out.println("\n===== HALAMAN PENGANTARAN KURIR =====");
+        System.out.println("Daftar Pesanan untuk Diantar:");
+
+        // 1. Cari dan tampilkan pesanan yang relevan
+        ArrayList<Pesanan> ordersToDeliver = new ArrayList<>();
+        for (Pesanan p : daftarPesanan) {
+            if (p.getStatus().equals("Pesanan sedang diantar")) {
+                ordersToDeliver.add(p);
+            }
+        }
+
+        if (ordersToDeliver.isEmpty()) {
+            System.out.println("-> Tidak ada pesanan yang perlu diantar saat ini.");
+        } else {
+            // Tampilkan dalam format tabel
+            System.out.println("----------------------------------------------------------------------");
+            System.out.printf("| %-5s | %-20s | %-35s |\n", "ID", "Nama Pemesan", "Alamat");
+            System.out.println("----------------------------------------------------------------------");
+            for (Pesanan p : ordersToDeliver) {
+                String alamat = "Alamat tidak tersedia";
+                if (p.getUser() instanceof Register) {
+                    alamat = ((Register) p.getUser()).getAddress();
+                }
+                System.out.printf("| %-5d | %-20s | %-35s |\n", p.getId(), p.getUser().getName(), alamat);
+            }
+            System.out.println("----------------------------------------------------------------------");
+        }
+
+        // 2. Tampilkan pilihan aksi
+        System.out.println("\n--- Pilihan Aksi ---");
+        System.out.println("1. Selesaikan Pesanan (Ubah Status ke 'Sudah Sampai')");
+        System.out.println("0. Kembali ke Menu Admin");
+        courierChoice = getIntegerInput(scanner, "Pilih menu: ");
+
+        if (courierChoice == 1) {
+            if (ordersToDeliver.isEmpty()) {
+                System.out.println("Tidak ada pesanan yang bisa diubah statusnya.");
+                continue;
+            }
+            int idSelesai = getIntegerInput(scanner, "Masukkan ID Pesanan yang sudah sampai: ");
+            boolean ditemukan = false;
+            for (Pesanan p : ordersToDeliver) {
+                if (p.getId() == idSelesai) {
+                    p.setStatus("Sudah sampai Tujuan");
+                    System.out.println("Status pesanan #" + idSelesai + " berhasil diubah.");
+                    ditemukan = true;
+                    break;
+                }
+            }
+            if (!ditemukan) {
+                System.out.println("ID pesanan tidak valid atau tidak ada dalam daftar antaran.");
+            }
+        }
+    }
+}
 
     // LETAKKAN METODE BARU INI DI DALAM KELAS MAIN, TAPI DI LUAR METODE MAIN
 private static void showLoginRegisterMenu(Scanner scanner, ArrayList<Register> daftarRegister, KelolaStok kelolaStok, Reward[] rewards, AuthService authService) {
@@ -215,83 +273,90 @@ do {
     System.out.println("\n=== Menu Admin ===");
     System.out.println("1. Kelola Produk");
     System.out.println("2. Kelola Reward");
-    System.out.println("3. Kelola Pesanan"); // <-- OPSI BARU
+    System.out.println("3. Kelola Pesanan");
+    System.out.println("4. Halaman Kurir"); // <-- OPSI BARU
     System.out.println("0. Keluar");
-    System.out.print("Pilih menu: ");
-    choice = getIntegerInput(scanner, ""); // Gunakan helper method jika sudah ada
+    choice = getIntegerInput(scanner, "Pilih menu: ");
 
     switch (choice) {
         case 1:
-            // ... logika kelola produk ...
+            // ... (logika kelola produk Anda yang sudah ada) ...
             break;
         case 2:
-            // ... logika kelola reward ...
+            // ... (logika kelola reward Anda yang sudah ada) ...
             break;
-        case 3: // <-- CASE BARU UNTUK KELOLA PESANAN
-            int orderMenuChoice = -1;
-            while(orderMenuChoice != 0) {
-                System.out.println("\n--- Sub-Menu Kelola Pesanan ---");
-                System.out.println("1. Tampilkan Semua Pesanan");
-                System.out.println("2. Ubah Status Pesanan");
-                System.out.println("0. Kembali ke Menu Admin");
-                orderMenuChoice = getIntegerInput(scanner, "Pilih menu: ");
+        case 3: // Kelola Pesanan
+    int orderMenuChoice = -1;
+    while(orderMenuChoice != 0) { // Loop ini akan terus berjalan sampai pengguna memilih 0
+        System.out.println("\n--- Sub-Menu Kelola Pesanan ---");
+        System.out.println("1. Tampilkan Semua Pesanan");
+        System.out.println("2. Ubah Status Pesanan (Proses -> Diantar)");
+        System.out.println("0. Kembali ke Menu Admin");
+        
+        // Meminta input untuk sub-menu
+        orderMenuChoice = getIntegerInput(scanner, "Pilih menu: ");
 
-                switch (orderMenuChoice) {
-                    case 1:
-                        if (daftarPesanan.isEmpty()) {
-                            System.out.println("Belum ada pesanan yang masuk.");
-                        } else {
-                            System.out.println("\n=== DAFTAR SEMUA PESANAN ===");
-                            for (Pesanan p : daftarPesanan) {
-                                p.printInfo();
-                            }
-                        }
-                        break;
-                    case 2:
-                        if (daftarPesanan.isEmpty()) {
-                            System.out.println("Belum ada pesanan untuk diubah.");
-                            break;
-                        }
-                        System.out.println("Daftar pesanan yang sedang diproses:");
-                        boolean adaPesananProses = false;
-                        for(Pesanan p : daftarPesanan) {
-                            if(p.getStatus().equals("Pesanan sedang di Proses")) {
-                                System.out.println(" - ID: " + p.getId());
-                                adaPesananProses = true;
-                            }
-                        }
-
-                        if (!adaPesananProses) {
-                            System.out.println("Tidak ada pesanan dengan status 'Proses'.");
-                            break;
-                        }
-
-                        int idPesanan = getIntegerInput(scanner, "Masukkan ID Pesanan yang akan diantar: ");
-                        boolean ditemukan = false;
-                        for (Pesanan p : daftarPesanan) {
-                            if (p.getId() == idPesanan && p.getStatus().equals("Pesanan sedang di Proses")) {
-                                p.setStatus("Pesanan sedang diantar");
-                                System.out.println("Status pesanan #" + idPesanan + " berhasil diubah menjadi 'Pesanan sedang diantar'.");
-                                ditemukan = true;
-                                break;
-                            }
-                        }
-                        if (!ditemukan) {
-                            System.out.println("ID Pesanan tidak ditemukan atau statusnya bukan 'Proses'.");
-                        }
-                        break;
-                    case 0:
-                        break; // Kembali
-                    default:
-                        System.out.println("Pilihan tidak valid.");
+        switch (orderMenuChoice) {
+            case 1:
+                if (daftarPesanan.isEmpty()) {
+                    System.out.println("Belum ada pesanan yang masuk.");
+                } else {
+                    System.out.println("\n=== DAFTAR SEMUA PESANAN ===");
+                    for (Pesanan p : daftarPesanan) {
+                        p.printInfo();
+                    }
                 }
-            }
+                break; // Keluar dari switch, kembali ke loop sub-menu
+            case 2:
+                if (daftarPesanan.isEmpty()) {
+                    System.out.println("Belum ada pesanan untuk diubah.");
+                    break;
+                }
+                System.out.println("\nDaftar pesanan yang sedang diproses:");
+                boolean adaPesananProses = false;
+                for(Pesanan p : daftarPesanan) {
+                    if(p.getStatus().equals("Pesanan sedang di Proses")) {
+                        // Tampilkan ringkasan agar admin tahu ID mana yang valid
+                        System.out.printf(" - ID: %d, Pemesan: %s\n", p.getId(), p.getUser().getName());
+                        adaPesananProses = true;
+                    }
+                }
+
+                if (!adaPesananProses) {
+                    System.out.println("-> Tidak ada pesanan dengan status 'Proses'.");
+                    break;
+                }
+
+                int idPesanan = getIntegerInput(scanner, "Masukkan ID Pesanan yang akan diantar: ");
+                boolean ditemukan = false;
+                for (Pesanan p : daftarPesanan) {
+                    if (p.getId() == idPesanan && p.getStatus().equals("Pesanan sedang di Proses")) {
+                        p.setStatus("Pesanan sedang diantar");
+                        System.out.println("Status pesanan #" + idPesanan + " berhasil diubah menjadi 'Pesanan sedang diantar'.");
+                        ditemukan = true;
+                        break;
+                    }
+                }
+                if (!ditemukan) {
+                    System.out.println("ID Pesanan tidak ditemukan atau statusnya bukan 'Proses'.");
+                }
+                break; // Keluar dari switch, kembali ke loop sub-menu
+            case 0:
+                // Jika 0, tidak melakukan apa-apa, `while` loop akan berhenti secara otomatis
+                break; 
+            default:
+                System.out.println("Pilihan tidak valid.");
+        }
+    }
+    break;
+        case 4: // <-- CASE BARU UNTUK HALAMAN KURIR
+            showCourierMenu(scanner, daftarPesanan);
             break;
         case 0:
-            // ...
+            System.out.println("Keluar dari menu admin.");
             break;
         default:
-            // ...
+            System.out.println("Pilihan tidak valid.");
     }
 } while (choice != 0);
                     break;
