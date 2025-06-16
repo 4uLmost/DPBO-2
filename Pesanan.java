@@ -32,6 +32,14 @@ public class Pesanan {
         this.status = status;
     }
 
+    public User getUser() {
+    return user;
+    }
+
+    public int getTotalHarga() {
+        return totalHarga;
+    }
+
     // Metode untuk menampilkan info pesanan dengan rapi
     public void printInfo() {
         System.out.println("--------------------------------------------------");
