@@ -1,3 +1,4 @@
+// Galon.java
 public class Galon implements Product {
 	private int id;
 	private double volume;
@@ -14,46 +15,34 @@ public class Galon implements Product {
 	}
 	
 	@Override
-	public int getId() {
-		return id;
-	}
-
-	public double getVolume() {
-		return volume;
-	}
-
+	public int getId() { return id; }
+	public double getVolume() { return volume; }
 	@Override
-	public String getBrand() {
-		return brand;
-	}
-
+	public String getBrand() { return brand; }
 	@Override
-	public int getPrice() {
-		return price;
-	}
-
+	public int getPrice() { return price; }
 	@Override
-	public int getStock() {
-		return stock;
-	}
+	public int getStock() { return stock; }
 	
 	@Override
 	public void reduceStock(int qty) {
-		if (stock >= qty) {
-			stock -= qty;
+		if (this.stock >= qty) {
+			this.stock -= qty;
 		}
 	}
 	
+    @Override
 	public void tambahStock(int jumlah) {
         this.stock += jumlah;
     }
 	
-	public void printInfo() {
-		 System.out.printf("| %-3d | %-10s | %-6.1fL | Rp%-8d | %-4d |\n",
-	                id, brand, volume, price, stock);
-	}
-	
+    @Override
     public void setPrice(int hargaBaru) {
         this.price = hargaBaru;
+    }
+
+    @Override
+    public void setBrand(String brand) {
+        this.brand = brand;
     }
 }
