@@ -1,50 +1,44 @@
-public class Galon implements Product{
+public class Galon implements Product {
 	private int id;
 	private double volume;
 	private String brand;
 	private int price;
 	private int stock;
 	
-	
 	public Galon(int id, double volume, String brand, int price, int stock) {
-		super();
 		this.id = id;
 		this.volume = volume;
 		this.brand = brand;
 		this.price = price;
 		this.stock = stock;
 	}
-
 	
-	
+	@Override
 	public int getId() {
 		return id;
 	}
-
-
 
 	public double getVolume() {
 		return volume;
 	}
 
-
-
+	@Override
 	public String getBrand() {
 		return brand;
 	}
 
-
-
+	@Override
 	public int getPrice() {
 		return price;
 	}
 
-
+	@Override
 	public int getStock() {
 		return stock;
 	}
 	
-	public void reduceStock( int qty) {
+	@Override
+	public void reduceStock(int qty) {
 		if (stock >= qty) {
 			stock -= qty;
 		}
@@ -59,7 +53,6 @@ public class Galon implements Product{
 	                id, brand, volume, price, stock);
 	}
 	
-	// Tambahkan setter untuk price
     public void setPrice(int hargaBaru) {
         this.price = hargaBaru;
     }

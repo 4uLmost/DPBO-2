@@ -1,4 +1,3 @@
-// Reward.java - Kode yang Sudah Diperbaiki
 public class Reward {
 	private int id;
     private String nama;

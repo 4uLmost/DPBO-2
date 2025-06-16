@@ -3,7 +3,6 @@ import java.util.*;
 public class Main {
     private static ArrayList<Register> daftarRegister = new ArrayList<>();
     private static User currentUser = null;
-    // Tambahkan objek admin dan chat channel
     private static Admin admin = new Admin(1, "Admin", "admin@example.com", "admin123", "Konsultansi");
     private static ChatChannel chatChannel = null;
 
@@ -352,15 +351,10 @@ private static void showLoginRegisterMenu(Scanner scanner, ArrayList<Register> d
             AuthService authService = new AuthService();
 
             // Tambahkan akun test ke daftarRegister
-            try {
-                daftarRegister.add(new Register(
-                    
-                )
-                // id
-                // nomor telepon contoh
-                );
+             try {
+                daftarRegister.add(new Register(999, "Test User", "testuser@gmail.com", "test123", 8123456789012L, 'L', "2000-01-01", "Jl. Test No. 1"));
             } catch (Exception e) {
-                // Tidak perlu aksi, hanya untuk inisialisasi test
+                // Inisialisasi test
             }
 
             // GUNAKAN ArrayList TUNGGAL INI

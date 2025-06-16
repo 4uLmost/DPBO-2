@@ -1,10 +1,9 @@
-public class Refill implements Product{
+public class Refill implements Product {
 	private int id;
 	private double volume;
 	private String brand;
-	private int stock;
 	private int refillPrice;
-	private Galon galon; // referensi ke galon utama (bisa null jika tidak ada galon terkait)
+	private Galon galon; 
 
 	public Refill(int id, double volume, String brand, Galon galon, int refillPrice) {
 		this.id = id;
@@ -12,10 +11,9 @@ public class Refill implements Product{
 		this.brand = brand;
 		this.galon = galon;
 		this.refillPrice = refillPrice;
-		// Sinkronisasi stok: jika ada galon terkait, gunakan stok galon, jika tidak, stok sendiri
-		this.stock = (galon != null) ? galon.getStock() : 0;
 	}
 
+	@Override
 	public int getId() {
 		return id;
 	}
@@ -24,20 +22,20 @@ public class Refill implements Product{
 		return volume;
 	}
 
+	@Override
 	public String getBrand() {
 		return brand;
 	}
 
+	@Override
 	public int getStock() {
-		// Sinkronisasi stok: jika ada galon terkait, gunakan stok galon
-		return (galon != null) ? galon.getStock() : stock;
+		return (galon != null) ? galon.getStock() : 0;
 	}
 
+	@Override
 	public void reduceStock(int amount) {
 		if (galon != null) {
 			galon.reduceStock(amount);
-		} else {
-			stock -= amount;
 		}
 	}
 
@@ -47,8 +45,8 @@ public class Refill implements Product{
 	}
 
 	public void setPrice(int hargaBaru) {
-		this.refillPrice = hargaBaru;
-	}
+        this.refillPrice = hargaBaru;
+    }
 
 	public Galon getGalon() {
 		return galon;
@@ -56,6 +54,6 @@ public class Refill implements Product{
 
 	public void printRefillInfo() {
 		System.out.printf("| %-3d | %-20s | %-7.1f | Rp%-10d | %-5d |\n",
-				id, brand, volume, refillPrice, getStock());
+				id, brand, volume, getPrice(), getStock());
 	}
 }
