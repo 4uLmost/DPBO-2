@@ -616,32 +616,59 @@ public static int getIntegerInput(Scanner scanner, String prompt) {
                         keranjang.tambahItem(itemBaru);
                         System.out.println("Berhasil menambahkan ke keranjang.");
                     }
-                } else if (menu == 3) {
-                    // Pesanan Saya
-                    while (true) {
-                        System.out.print("Masukkan ID Pesanan (tekan ENTER untuk kembali): ");
-                        String input = scanner.nextLine();
-                        if (input.isEmpty()) break;
-                        int id;
-                        try {
-                            id = Integer.parseInt(input);
-                        } catch (NumberFormatException e) {
-                            System.out.println("ID harus berupa angka! Silakan coba lagi.");
-                            continue;
-                        }
-                        if (orders.containsKey(id) && orders.get(id).isCompleted()) {
-                            System.out.println("Pesanan ID " + id + " sudah sampai.");
-                        } else {
-                            Delivery delivery = orders.getOrDefault(id, new Delivery(id));
-                            delivery.updateStatus();
-                            delivery.printInfo();
-                            if (!delivery.isCompleted()) {
-                                orders.put(id, delivery);
+                } else if (menu == 3) { // Pesanan Saya
+                        // 1. Kumpulkan semua pesanan milik pengguna yang sedang login
+                        ArrayList<Pesanan> userOrders = new ArrayList<>();
+                        for (Pesanan p : daftarPesanan) {
+                            // Asumsi kelas Pesanan punya method getUser() yang mengembalikan objek User
+                            if (p.getUser() == currentUser) {
+                                userOrders.add(p);
                             }
                         }
-                        System.out.println("Terima kasih!");
-                    }
-                } else if (menu == 4) {
+
+                        if (userOrders.isEmpty()) {
+                            System.out.println("\nAnda belum memiliki riwayat pesanan.");
+                        } else {
+                            // 2. Tampilkan dalam format tabel ringkas
+                            System.out.println("\n====================== RIWAYAT PESANAN SAYA ======================");
+                            System.out.printf("| %-10s | %-12s | %-25s |\n", "ID Pesanan", "Total Harga", "Status");
+                            System.out.println("----------------------------------------------------------------");
+                            for (Pesanan p : userOrders) {
+                                System.out.printf("| %-10d | Rp%-10d | %-25s |\n", p.getId(), p.getTotalHarga(), p.getStatus());
+                            }
+                            System.out.println("----------------------------------------------------------------");
+
+                            // 3. Tampilkan sub-menu untuk aksi selanjutnya
+                            int subMenuChoice = -1;
+                            while (subMenuChoice != 0) {
+                                System.out.println("\n--- Pilihan Aksi ---");
+                                System.out.println("1. Lihat Detail Pesanan");
+                                System.out.println("0. Kembali ke Menu Utama");
+                                subMenuChoice = getIntegerInput(scanner, "Pilih menu: ");
+
+                                if (subMenuChoice == 1) {
+                                    int idDetail = getIntegerInput(scanner, "Masukkan ID Pesanan untuk melihat detail: ");
+                                    Pesanan pesananDitemukan = null;
+                                    for (Pesanan p : userOrders) {
+                                        if (p.getId() == idDetail) {
+                                            pesananDitemukan = p;
+                                            break;
+                                        }
+                                    }
+
+                                    if (pesananDitemukan != null) {
+                                        System.out.println("\n===== DETAIL PESANAN #" + idDetail + " =====");
+                                        // Panggil metode printInfo() yang sudah ada di kelas Pesanan
+                                        pesananDitemukan.printInfo();
+                                    } else {
+                                        System.out.println("Pesanan dengan ID tersebut tidak ditemukan di riwayat Anda.");
+                                    }
+                                } else if (subMenuChoice != 0) {
+                                    System.out.println("Pilihan tidak valid.");
+                                }
+                            }
+                        }
+                    } else if (menu == 4) {
                     // Keranjang
                     while (true) {
                         System.out.println("\n===== KERANJANG ANDA =====");
