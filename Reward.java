@@ -32,6 +32,14 @@ public class Reward {
         }
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getDeskripsi() {
+        return deskripsi;
+    }
+
     public String getNama() {
         return nama;
     }

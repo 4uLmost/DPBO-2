@@ -14,15 +14,11 @@ public class Main {
             // Tambahkan akun test ke daftarRegister
             try {
                 daftarRegister.add(new Register(
-                    999, // id
-                    "Test User",
-                    "testuser@gmail.com",
-                    "test123",
-                    8123456789012L, // nomor telepon contoh
-                    'L',
-                    "2000-01-01",
-                    "Jl. Test No. 1"
-                ));
+                    
+                )
+                // id
+                // nomor telepon contoh
+                );
             } catch (Exception e) {
                 // Tidak perlu aksi, hanya untuk inisialisasi test
             }
@@ -89,154 +85,8 @@ public class Main {
                 }
 
                 if (menu == 1) {
-                    // Register
-                    try {
-                        String name;
-                        while (true) {
-                            System.out.print("Nama: ");
-                            name = scanner.nextLine();
-                            if (name.isEmpty()) {
-                                System.out.println("Nama tidak boleh kosong, Harap isi terlebih dahulu");
-                            } else {
-                                break;
-                            }
-                        }
-                        String email;
-                        while (true) {
-                            System.out.print("Email (gunakan @gmail.com): ");
-                            email = scanner.nextLine();
-                            if (email.isEmpty()) {
-                                System.out.println("Email tidak boleh kosong, Harap isi terlebih dahulu");
-                            } else if (!email.endsWith("@gmail.com")) {
-                                System.out.println("Email harus menggunakan domain @gmail.com");
-                            } else {
-                                boolean emailExists = false;
-                                for (Register reg : daftarRegister) {
-                                    if (reg.getEmail().equals(email)) {
-                                        emailExists = true;
-                                        break;
-                                    }
-                                }
-                                if (emailExists) {
-                                    System.out.println("Email sudah terdaftar, silakan gunakan email lain.");
-                                } else {
-                                    break;
-                                }
-                            }
-                        }
-                        String address;
-                        while (true) {
-                            System.out.print("Alamat: ");
-                            address = scanner.nextLine();
-                            if (address.isEmpty()) {
-                                System.out.println("Alamat tidak boleh kosong, Harap isi terlebih dahulu");
-                            } else {
-                                break;
-                            }
-                        }
-                        String password;
-                        while (true) {
-                            System.out.print("Password: ");
-                            password = scanner.nextLine();
-                            if (password.isEmpty()) {
-                                System.out.println("Password tidak boleh kosong, Harap isi terlebih dahulu");
-                            } else {
-                                break;
-                            }
-                        }
-                        String phoneInput;
-                        long phoneNumber;
-                        while (true) {
-                            System.out.print("Nomor Telepon: ");
-                            phoneInput = scanner.nextLine();
-                            if (phoneInput.isEmpty()) {
-                                System.out.println("Nomor Telepon tidak boleh kosong, Harap isi terlebih dahulu");
-                                continue;
-                            }
-                            if (!phoneInput.matches("\\d+")) {
-                                System.out.println("Harap masukan nomor telepon yang benar");
-                                continue;
-                            }
-                            if (phoneInput.length() > 13) {
-                                System.out.println("Maksimal nomor telepon hanya 13 digit");
-                                continue;
-                            }
-                            boolean phoneExists = false;
-                            for (Register reg : daftarRegister) {
-                                if (String.valueOf(reg.getPhoneNumber()).equals(phoneInput)) {
-                                    phoneExists = true;
-                                    break;
-                                }
-                            }
-                            if (phoneExists) {
-                                System.out.println("nomor telepon sudah digunakan");
-                                continue;
-                            }
-                            try {
-                                phoneNumber = Long.parseLong(phoneInput);
-                                break;
-                            } catch (NumberFormatException e) {
-                                System.out.println("Nomor telepon tidak valid. Gunakan hanya angka.");
-                            }
-                        }
-                        String genderInput;
-                        char gender;
-                        while (true) {
-                            System.out.print("Jenis Kelamin (L/P): ");
-                            genderInput = scanner.nextLine();
-                            if (genderInput.isEmpty()) {
-                                System.out.println("Jenis Kelamin tidak boleh kosong, Harap isi terlebih dahulu");
-                                continue;
-                            }
-                            char genderChar = Character.toUpperCase(genderInput.charAt(0));
-                            if (genderChar != 'L' && genderChar != 'P') {
-                                System.out.println("Yang anda masukan tidak valid, Harap masukaln (L/P)");
-                                continue;
-                            }
-                            gender = genderChar;
-                            break;
-                        }
-                        String birthday;
-                        while (true) {
-                            System.out.print("Tanggal Lahir (yyyy-mm-dd): ");
-                            birthday = scanner.nextLine();
-                            if (birthday.isEmpty()) {
-                                System.out.println("Tanggal Lahir tidak boleh kosong, Harap isi terlebih dahulu");
-                                continue;
-                            }
-                            // Hilangkan semua karakter selain angka
-                            String digitsOnly = birthday.replaceAll("[^0-9]", "");
-                            if (digitsOnly.length() != 8) {
-                                System.out.println("Tanggal lahir harus 8 digit angka (format: yyyy-mm-dd atau yyyymmdd)");
-                                continue;
-                            }
-                            if (!digitsOnly.matches("\\d{8}")) {
-                                System.out.println("Tanggal lahir harus berupa angka");
-                                continue;
-                            }
-                            // Jika user tidak pakai '-', formatkan ke yyyy-mm-dd
-                            if (!birthday.contains("-")) {
-                                birthday = digitsOnly.substring(0, 4) + "-" + digitsOnly.substring(4, 6) + "-" + digitsOnly.substring(6, 8);
-                            }
-                            break;
-                        }
-
-                        Register reg = new Register(
-                            daftarRegister.size() + 1, // id
-                            name,
-                            email,
-                            password,
-                            phoneNumber, // gunakan long, jangan cast ke int
-                            gender,
-                            birthday,
-                            address
-                        );
-                        daftarRegister.add(reg);
-                        reg.printInfo();
-                        System.out.println("Silakan login untuk melanjutkan.");
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                    }
+                    Register reg = new Register();
+                    reg.registerInput();
                 } else if (menu == 2) {
                     // Login
                     while (true) {
@@ -961,15 +811,11 @@ public class Main {
                                 }
 
                                 Register reg = new Register(
-                                    daftarRegister.size() + 1, // id
-                                    name,
-                                    email,
-                                    password,
-                                    phoneNumber2, // gunakan long, jangan cast ke int
-                                    gender,
-                                    birthday,
-                                    address
-                                );
+                                    
+                                )
+                                // id
+                                // gunakan long, jangan cast ke int
+                                ;
                                 daftarRegister.add(reg);
                                 reg.printInfo();
                                 System.out.println("Silakan login untuk melanjutkan.");
