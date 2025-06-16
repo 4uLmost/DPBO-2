@@ -354,15 +354,11 @@ private static void showLoginRegisterMenu(Scanner scanner, ArrayList<Register> d
             // Tambahkan akun test ke daftarRegister
             try {
                 daftarRegister.add(new Register(
-                    999, // id
-                    "Test User",
-                    "testuser@gmail.com",
-                    "test123",
-                    8123456789012L, // nomor telepon contoh
-                    'L',
-                    "2000-01-01",
-                    "Jl. Test No. 1"
-                ));
+                    
+                )
+                // id
+                // nomor telepon contoh
+                );
             } catch (Exception e) {
                 // Tidak perlu aksi, hanya untuk inisialisasi test
             }

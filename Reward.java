@@ -33,8 +33,6 @@ public class Reward {
         }
     }
 
-    // -- METODE YANG DITAMBAHKAN UNTUK MEMPERBAIKI ERROR --
-
     public int getId() {
         return id;
     }
